@@ -1,6 +1,7 @@
 const express = require('express');
 // imports in the Apollo server
 const { ApolloServer } = require('apollo-server-express');
+const path = require('path');
 
 // imports typeDef and resolvers
 const { typeDefs, resolvers } = require('./schemas');
@@ -21,6 +22,15 @@ const app = express();
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+
+// Provides static assets
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '../client/build')));
+}
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../client/build/index.html'));
+});
 
 // Creates a new instance of the ApolloServer with the graphQL schema info
 const startApolloServer = async (typeDefs, resolvers) => {
